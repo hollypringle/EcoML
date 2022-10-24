@@ -4,19 +4,17 @@ library(overlap)
 library(beepr)
 library(circular)
 library(data.table)
+library(dplyr)
+library(tidyr)
+library(tibble)
 
 #Setup####
 gt_raw<-read.csv("kenya_ecoml_labels_Manual.csv")
-head(gt_raw)
-
 ResNet18_raw<-read.csv("kenya_ecoml_labels_ResNet18.csv")
-head(ResNet18_raw)
-
 ResNet50_raw<-read.csv("kenya_ecoml_labels_ResNet50.csv")
-head(ResNet50_raw)
-
 ConvNextT_raw<-read.csv("kenya_ecoml_labels_ConvNextT.csv")
-head(ConvNextT_raw)
+
+#Time in radians for each set####
 
 gt_raw$time_rad <- gettime(gt_raw$datetime, "%Y-%m-%d %H:%M:%S", "radian")  # transforming time in radians
 gt_raw$time_prop <- gettime(gt_raw$datetime, "%Y-%m-%d %H:%M:%S","proportion") # transforming time in proportion
@@ -40,7 +38,7 @@ ConvNextT_raw$time_rad <- gettime(ConvNextT_raw$datetime, "%Y-%m-%d %H:%M:%S", "
 ConvNextT_raw$time_prop <- gettime(ConvNextT_raw$datetime, "%Y-%m-%d %H:%M:%S","proportion") # transforming time in proportion
 range(ConvNextT_raw$time_rad) # just checking - should be between ca. 0 and 6.28
 range(ConvNextT_raw$time_prop) # just checking - should be between 0 and 1
-nrow(ConvNextT_raw) #23319
+nrow(ConvNextT_raw) #23319 #image number should always be the same#
 
 # SOLAR TIME FUNCTIONS FROM ROWCLIFFE ###
 require(insol)
@@ -57,12 +55,9 @@ gettime <- function(x, format="%Y-%m-%d %H:%M:%S", scale=c("radian","hour","prop
     res
 }
 
-##aardvark #7 gt records- don't run ####
-
-
+##aardvark #7 gt records- don't run any under 25 records ####
 ##GT
-aardvark_length_gt_raw<-length(gt_raw[gt_raw$label == "aardvark", "time_rad"]) #519
-#7
+aardvark_length_gt_raw<-length(gt_raw[gt_raw$label == "aardvark", "time_rad"]) #7
 # estimating proportion of time active for wild boar for the whole dataset (overall)  
 gt_raw_aardvark<- fitact(gt_raw[gt_raw$label == "aardvark", "time_rad"],
                            reps=1000,sample="model",show=TRUE); beep()
@@ -1388,18 +1383,13 @@ zorilla_ConvNextT_act$n<-zorilla_length_ConvNextT_raw
 #combine and write ####
 
 
-#aardvark_act<-rbind(aardvark_gt_act, aardvark_ResNet18_act, aardvark_ResNet50_act, aardvark_ConvNextT_act)
 baboon_act<-rbind(baboon_gt_act, baboon_ResNet18_act, baboon_ResNet50_act, baboon_ConvNextT_act)
-#bateared_fox_act<-rbind(bateared_fox_gt_act, bateared_fox_ResNet18_act, bateared_fox_ResNet50_act, bateared_fox_ConvNextT_act)
 buffalo_act<-rbind(buffalo_gt_act, buffalo_ResNet18_act, buffalo_ResNet50_act, buffalo_ConvNextT_act)
-#bushbuck_act<-rbind(bushbuck_gt_act, bushbuck_ResNet18_act, bushbuck_ResNet50_act, bushbuck_ConvNextT_act)
-#cheetah_act<-rbind(cheetah_gt_act, cheetah_ResNet18_act, cheetah_ResNet50_act, cheetah_ConvNextT_act)
 dikdik_act<-rbind(dikdik_gt_act, dikdik_ResNet18_act, dikdik_ResNet50_act, dikdik_ConvNextT_act)
 eland_act<-rbind(eland_gt_act, eland_ResNet18_act, eland_ResNet50_act, eland_ConvNextT_act)
 elephant_act<-rbind(elephant_gt_act, elephant_ResNet18_act, elephant_ResNet50_act, elephant_ConvNextT_act)
 gazelle_grants_act<-rbind(gazelle_grants_gt_act, gazelle_grants_ResNet18_act, gazelle_grants_ResNet50_act, gazelle_grants_ConvNextT_act)
 gazelle_thomsons_act<-rbind(gazelle_thomsons_gt_act, gazelle_thomsons_ResNet18_act, gazelle_thomsons_ResNet50_act, gazelle_thomsons_ConvNextT_act)
-#genet_act<-rbind(genet_gt_act, genet_ResNet18_act, genet_ResNet50_act, genet_ConvNextT_act)
 giraffe_act<-rbind(giraffe_gt_act, giraffe_ResNet18_act, giraffe_ResNet50_act, giraffe_ConvNextT_act)
 hare_act<-rbind(hare_gt_act, hare_ResNet18_act, hare_ResNet50_act, hare_ConvNextT_act)
 hartebeest_cokes_act<-rbind(hartebeest_cokes_gt_act, hartebeest_cokes_ResNet18_act, hartebeest_cokes_ResNet50_act, hartebeest_cokes_ConvNextT_act)
@@ -1407,22 +1397,12 @@ hippopotamus_act<-rbind(hippopotamus_gt_act,hippopotamus_ResNet18_act, hippopota
 hyena_aardwolf_act<-rbind(hyena_aardwolf_gt_act,hyena_aardwolf_ResNet18_act, hyena_aardwolf_ResNet50_act, hyena_aardwolf_ConvNextT_act)
 impala_act<-rbind(impala_gt_act,impala_ResNet18_act, impala_ResNet50_act, impala_ConvNextT_act)
 jackal_act<-rbind(jackal_gt_act,jackal_ResNet18_act, jackal_ResNet50_act, jackal_ConvNextT_act)
-#leopard_act<-rbind(leopard_gt_act,leopard_ResNet18_act, leopard_ResNet50_act, leopard_ConvNextT_act)
-#lion_act<-rbind(lion_gt_act,lion_ResNet18_act, lion_ResNet50_act, lion_ConvNextT_act)
 mongoose_act<-rbind(mongoose_gt_act,mongoose_ResNet18_act, mongoose_ResNet50_act, mongoose_ConvNextT_act)
-#oribi_act<-rbind(oribi_gt_act,oribi_ResNet18_act, oribi_ResNet50_act, oribi_ConvNextT_act)
-#porcupine_act<-rbind(porcupine_gt_act,porcupine_ResNet18_act, porcupine_ResNet50_act, porcupine_ConvNextT_act)
-#reedbuck_act<-rbind(reedbuck_gt_act,reedbuck_ResNet18_act, reedbuck_ResNet50_act)
-#serval_act<-rbind(serval_gt_act,serval_ResNet18_act, serval_ResNet50_act, serval_ConvNextT_act)
 topi_act<-rbind(topi_gt_act,topi_ResNet18_act, topi_ResNet50_act, topi_ConvNextT_act)
 vervet_monkey_act<-rbind(vervet_monkey_gt_act,vervet_monkey_ResNet18_act, vervet_monkey_ResNet50_act, vervet_monkey_ConvNextT_act)
 warthog_act<-rbind(warthog_gt_act,warthog_ResNet18_act, warthog_ResNet50_act, warthog_ConvNextT_act)
-#waterbuck_act<-rbind(waterbuck_gt_act,waterbuck_ResNet18_act, waterbuck_ResNet50_act, waterbuck_ConvNextT_act)
 wildebeest_act<-rbind(wildebeest_gt_act,wildebeest_ResNet18_act, wildebeest_ResNet50_act, wildebeest_ConvNextT_act)
 zebra_act<-rbind(zebra_gt_act,zebra_ResNet18_act, zebra_ResNet50_act, zebra_ConvNextT_act)
-#zorilla_act<-rbind(zorilla_gt_act,zorilla_ResNet18_act, zorilla_ResNet50_act, zorilla_ConvNextT_act)
-
-
 
 activity_nothreshold<-rbind(baboon_act,buffalo_act, dikdik_act, eland_act,
                             elephant_act, gazelle_grants_act, gazelle_thomsons_act, giraffe_act, hare_act, hartebeest_cokes_act,
@@ -1430,19 +1410,15 @@ activity_nothreshold<-rbind(baboon_act,buffalo_act, dikdik_act, eland_act,
                             topi_act,vervet_monkey_act,warthog_act,wildebeest_act,zebra_act)
 
 ###Restructuring dataframe####
-library(tibble)
 activity_nothreshold<- tibble::rownames_to_column(activity_nothreshold, "species")
-
 head(activity_nothreshold)
-library(dplyr)
-library(tidyr)
 activity_nothreshold<-activity_nothreshold %>%
   separate(species, c("model", "species"), "_raw_")
 activity_nothreshold<-activity_nothreshold %>%
   separate(species, c("species", "type"), "@")
 activity_nothreshold$type<-NULL
 write.csv(activity_nothreshold,"activity_nothreshold.csv")
-#edited in excel to remove % bc i cba to figure out how to do it in r sorry
+
 activity_nothreshold<-read.csv("activity_nothreshold.csv")
 
 gt <- subset(activity_nothreshold, model == "gt")
